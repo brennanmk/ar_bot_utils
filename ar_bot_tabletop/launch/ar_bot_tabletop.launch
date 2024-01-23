@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Arguments -->
+    <arg name="unity" default="true" />
+    <arg name="robot" default="true" />
+    <arg name="camera" default="true" />
+
+    <!-- Start TCP Endpoint for Unity-->
+    <group if="$(arg unity)">
+        <include file="$(find ros_tcp_endpoint)/launch/endpoint.launch" />
+    </group>
+
+    <!-- Start base platform -->
+    <group if="$(arg robot)">
+        <include file="$(find ar_bot_bringup)/launch/bringup.launch" />
+    </group>
+
+    <!-- Start Camera -->
+    <group if="$(arg camera)">
+        <include file="$(find realsense2_camera)/launch/rs_camera.launch" />
+    </group>
+
+</launch>
