@@ -1,0 +1,16 @@
+{
+  "python.autoComplete.extraPaths": [
+    "/home/brennan/catkin_ws/devel_isolated/ros_tcp_endpoint/lib/python3/dist-packages",
+    "/home/brennan/catkin_ws/devel_isolated/pose_graph_tools/lib/python3/dist-packages",
+    "/home/brennan/catkin_ws/devel_isolated/kinova_study/lib/python3/dist-packages",
+    "/home/brennan/catkin_ws/devel/lib/python3/dist-packages",
+    "/opt/ros/noetic/lib/python3/dist-packages"
+  ],
+  "python.analysis.extraPaths": [
+    "/home/brennan/catkin_ws/devel_isolated/ros_tcp_endpoint/lib/python3/dist-packages",
+    "/home/brennan/catkin_ws/devel_isolated/pose_graph_tools/lib/python3/dist-packages",
+    "/home/brennan/catkin_ws/devel_isolated/kinova_study/lib/python3/dist-packages",
+    "/home/brennan/catkin_ws/devel/lib/python3/dist-packages",
+    "/opt/ros/noetic/lib/python3/dist-packages"
+  ]
+}
