@@ -1,7 +1,7 @@
 from ray.rllib.algorithms.ppo import PPOConfig
 from ar_bot_sim.environments.tabletop.ar_bot_tabletop_gym import ARBotTabletopGym
 import gymnasium as gym
-from ray import tune, air
+from ray import tune, air, train
 actions = gym.spaces.Discrete(4)
 
 action_mapping = {
@@ -24,13 +24,23 @@ config = (
         },
     )
     # Parallelize environment rollouts.
-    .rollouts(num_rollout_workers=6)
+    .rollouts(num_rollout_workers=12)
+    .resources(num_gpus=1)
+    .evaluation(
+        evaluation_num_workers=1,
+        evaluation_interval=20,
+    )
 )
-
-# Construct the actual (PPO) algorithm object from the config.
-algo = config.build()
 
 # Train for n iterations and report results (mean episode rewards).
 
-stopping_criteria = {"episode_reward_mean": 300}
-tune.Tuner("PPO", run_config=air.RunConfig(stop=stopping_criteria), param_space=config.to_dict()).fit()
+stopping_criteria = {"episode_reward_mean": 700}
+tune.Tuner("PPO", run_config=air.RunConfig(stop=stopping_criteria, checkpoint_config=train.CheckpointConfig(checkpoint_at_end=True)), param_space=config.to_dict()).fit()
+
+save_result = aglo.save()
+
+path_to_checkpoint = save_result.checkpoint.path
+print(
+    "An Algorithm checkpoint has been created inside directory: "
+    f"'{path_to_checkpoint}'."
+)
