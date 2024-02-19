@@ -1,70 +1,62 @@
 import numpy as np
 from stable_baselines3.common.callbacks import StopTrainingOnMaxEpisodes
+import gymnasium as gym
+from ar_bot_sim.environments.tabletop.ar_bot_tabletop_gym import ARBotTabletopGym
+from stable_baselines3 import PPO
 
-
-class TrainARBot:
+def train(
+    num_episodes,
+    model_save_location=None,
+    training_data_location=None,
+    seed=43,
+    obstacle=0,
+) -> tuple:
     """
-    TrainARBot class is used to train the ARBot
-    given an model, action space, and model
+    train function is used to train a model
+
+    :param num_timesteps: how many timesteps to run
+    :param obstacle: whether to spawn obstacles or not
+    :param model_save_location: location to save the trained model, if none the model will not be saved
+    :param training_data_location: where to save training data, if none data is not saved
+
+    :return: a tuple consisting of two lists
     """
 
-    def __init__(self, agent, env, actions, model, action_mapping=None) -> None:
-        self.agent = agent
-        self.env = env
-        self.actions = actions
-        self.model = model
-        self.action_mapping = action_mapping
+    actions = gym.spaces.Discrete(4)
 
-    def train(
-        self,
-        num_episodes,
-        model_save_location=None,
-        training_data_location=None,
-        seed=43,
-        obstacle=False,
-    ) -> tuple:
-        """
-        train function is used to train a model
+    action_mapping = {
+        0: (0.0, 0.5),
+        1: (0.5, 0.0),
+        2: (0.0, -0.5),
+        3: (-0.5, 0.0)
+    }
 
-        :param num_timesteps: how many timesteps to run
-        :param obstacle: whether to spawn obstacles or not
-        :param model_save_location: location to save the trained model, if none the model will not be saved
-        :param training_data_location: where to save training data, if none data is not saved
+    env_config={
+        "discrete_action_mapping": action_mapping,
+        "render_simulation": True,
+        "number_of_obstacles": obstacle,
+        "actions": actions,
+        "max_timesteps_per_episode": 2000
+    }
 
-        :return: a tuple consisting of two lists
-        """
-        random_generator = np.random.default_rng(seed)
+    env = ARBotTabletopGym(
+        env_config
+    )
 
-        env = self.env(
-            self.agent, self.actions, self.action_mapping, random_generator, obstacle
-        )
+    callback_max_episodes = StopTrainingOnMaxEpisodes(max_episodes=num_episodes)
 
-        callback_max_episodes = StopTrainingOnMaxEpisodes(max_episodes=num_episodes)
+    model = PPO(
+        "MlpPolicy", env, tensorboard_log="./ppo_arbot_tensorboard/", seed=seed, learning_rate=1e-5, gamma=0.99, clip_range=0.2, device='cuda', policy_kwargs={'net_arch':[64, 128]}
+    )
+    model.learn(int(1e10), callback=callback_max_episodes)
 
-        model = self.model(
-            "MlpPolicy", env, tensorboard_log="./ppo_arbot_tensorboard/", seed=seed
-        )
-        model.learn(int(1e10), callback=callback_max_episodes)
+    env.close()
 
-        env.close()
+    del env
 
-        total_sum_reward_tracker = env.total_sum_reward_tracker
-        total_timestep_tracker = env.total_timestep_tracker
+    # check if save location is specified, if so save last model for replaying
+    if model_save_location is not None:
+        model.save(model_save_location)
 
-        del env
-
-        # check if save location is specified, if so save last model for replaying
-        if model_save_location is not None:
-            model.save(model_save_location)
-
-        # Convert to numpy array for saving
-        total_sum_reward_tracker = np.array(total_sum_reward_tracker, dtype=np.float32)
-        total_timestep_tracker = np.array(total_timestep_tracker, dtype=np.float32)
-
-        # check if save location is specified, if so save training_data_location
-        if training_data_location is not None:
-            with open(training_data_location, "wb") as training_data_file:
-                np.save(training_data_file, total_sum_reward_tracker)
-                np.save(training_data_file, total_timestep_tracker)
-
-        return total_sum_reward_tracker, total_timestep_tracker
+if __name__ == '__main__':
+    train(1000)
