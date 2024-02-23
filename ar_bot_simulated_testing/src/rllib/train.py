@@ -17,18 +17,18 @@ config = (
             "render_simulation": False,
             "number_of_obstacles": 0,
             "actions": actions,
-            "max_timesteps_per_episode": 4000,
+            "max_timesteps_per_episode": 400,
         },
     )
     # Parallelize environment rollouts.
-    .rollouts(num_rollout_workers=1)
+    .rollouts(num_rollout_workers=14)
     .resources(num_gpus=1)
     .training(gamma=0.99, lr=1e-5, clip_param=0.2, model={"fcnet_hiddens": [64, 64]})
 )
 
 # Train for n iterations and report results (mean episode rewards).
 
-stopping_criteria = {"episode_reward_mean": 100}
+stopping_criteria = {"episode_reward_mean": -20}
 tune.Tuner(
     "PPO",
     run_config=air.RunConfig(
