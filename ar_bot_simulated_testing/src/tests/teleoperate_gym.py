@@ -10,9 +10,9 @@ class teleoperate:
         actions = gym.spaces.Discrete(5)
 
         action_mapping = {
-            0: (0.0, 0.5),
+            0: (0.0, 0.25),
             1: (0.5, 0.0),
-            2: (0.0, -0.5),
+            2: (0.0, -0.25),
             3: (-0.5, 0.0),
             4: (0.0, 0.0),
         }

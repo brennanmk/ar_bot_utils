@@ -36,7 +36,7 @@ def train(
         "render_simulation": True,
         "number_of_obstacles": obstacle,
         "actions": actions,
-        "max_timesteps_per_episode": 2000
+        "max_timesteps_per_episode": 200
     }
 
     env = ARBotTabletopGym(
