@@ -29,7 +29,7 @@ class TrainARBot:
                     "max_timesteps_per_episode": args.timesteps,
                 },
             )
-            # Parallelize environment rollouts.
+            .framework("torch")
             .rollouts(num_rollout_workers=args.workers)
             .resources(num_gpus=args.gpu)
             .training(gamma=args.discount, lr=args.lr, clip_param=args.clip_param, model={"fcnet_hiddens": args.network})
@@ -65,8 +65,8 @@ if __name__ == '__main__':
     parser.add_argument('--evaluation_interval', type=int, default=50, help='evaluation interval for training')
     parser.add_argument('--network', nargs='+', default=[32,32], help="Size of training network")
     parser.add_argument('--obstacles', type=int, default=0, help='number of obstacles to use during training')
-    parser.add_argument('--timesteps', type=int, default=0, help='number of timesteps per episode to use during training')
-    parser.add_argument('--stop_return', type=float, default="-10.0", help='evaluation reward to stop training')
+    parser.add_argument('--timesteps', type=int, default=400, help='number of timesteps per episode to use during training')
+    parser.add_argument('--stop_return', type=float, default="-4.0", help='evaluation reward to stop training')
     parser.add_argument('--iterations', type=int, default=20000, help='number of iterations total to use during training')
 
     parser.add_argument('--back', help='If true, bot can go back', default=False)
