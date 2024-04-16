@@ -17,7 +17,8 @@ from typing import Union
 
 class RelativePoseTracker:
     """
-    Tracks a marker using SIFT, uses homography matrix to get relative pos
+    Tracks a marker using SIFT, used to find target image pose
+    relative to referance image
 
     :param reference_image_path: file path referance image
     :param transform_coordinates: coordinates to get location of in frame
@@ -67,8 +68,8 @@ class RelativePoseTracker:
         self, image: np.ndarray
     ) -> Union[Tuple[np.array, float], None]:
         """
-        generates a lidar image from raw camera image, will either return coordinates of
-        "transform_coordinates" parameter, or None
+        returns translation and orientation of the target image relative to
+        the referance image.
 
         :param image: camera image to perform keypoint matching on
         """
