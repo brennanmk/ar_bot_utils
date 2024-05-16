@@ -26,7 +26,7 @@ class TabletopCV:
         self.cv_bridge = CvBridge()
 
         self.color_sub = rospy.Subscriber(
-            "camera/color/image_raw", Image, self.proccess
+            "/camera/color/image_raw", Image, self.proccess
         )
 
         rospy.spin()

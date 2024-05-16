@@ -75,11 +75,11 @@ class RelativePoseTracker:
         """
         frame_key_points, frame_description = self._sift.detectAndCompute(image, None)
 
-        referance_matches = self._flann.knnmatch(
+        referance_matches = self._flann.knnMatch(
             self._referance_description, frame_description, k=self._k
         )
 
-        target_matches = self._flann.knnmatch(
+        target_matches = self._flann.knnMatch(
             self._target_description, frame_description, k=self._k
         )
 
@@ -124,27 +124,33 @@ class RelativePoseTracker:
             referance_transformation_matrix, _ = cv.estimateAffinePartial2D(
                 referance_template_matched_keypoints, referance_matched_keypoints
             )
-            (target_transformation_matrix,) = cv.estimateAffinePartial2D(
+            target_transformation_matrix, _ = cv.estimateAffinePartial2D(
                 target_template_matched_keypoints, target_matched_keypoints
             )
 
-            translation = cv.transform(
-                np.array(
-                    [
-                        [
-                            [0, 0],
-                            [0, referance_transformation_matrix.shape[0]],
-                            [
-                                referance_transformation_matrix.shape[1],
-                                referance_transformation_matrix.shape[0],
-                            ],
-                            [referance_transformation_matrix.shape[1], 0],
-                        ]
-                    ],
-                    dtype=np.float32,
-                ),
-                target_transformation_matrix,
+            referance_homography_matrix, _ = cv.findHomography(
+                referance_template_matched_keypoints,
+                referance_matched_keypoints,
+                cv.RANSAC,
+                5.0,
             )
+            target_homography_matrix, _ = cv.findHomography(
+                target_template_matched_keypoints,
+                target_matched_keypoints,
+                cv.RANSAC,
+                5.0,
+            )
+
+            destination = np.float32([[0, 0]]).reshape(-1, 1, 2)
+
+            referance_translation = cv.perspectiveTransform(
+                destination, referance_homography_matrix
+            )
+            target_translation = cv.perspectiveTransform(
+                destination, target_homography_matrix
+            )
+
+            translation = target_translation - referance_translation
 
             rotation_target = np.arctan2(
                 target_transformation_matrix[1, 0], target_transformation_matrix[0, 0]
